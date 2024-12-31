@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yearly Time Management Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Existing Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            flex-direction: column;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%; /* Full width */
+            max-width: 100%; /* No max-width */
+            height: 100%; /* Full height */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        /* Front Row: Datepicker and Add Button */
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-direction: row;
+            align-items: center;
+            width: fit-content;
+        }
+
+        .input-section input, button {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .input-section input {
+            flex-grow: 1;
+        }
+
+        .input-section button {
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .input-section button:hover {
+            background-color: #45a049;
+        }
+
+        /* Dropdown Button */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 6px;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content button {
+            background-color: #f1f1f1;
+            color: black;
+            padding: 10px;
+            text-align: left;
+            border: none;
+            width: 100%;
+            font-size: 14px;
+            border-radius: 6px;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #ddd;
+        }
+
+        /* Add Activity Slider */
+        .add-activity-slider {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            z-index: 10;
+            transition: 0.3s;
+            overflow-y: auto;
+        }
+
+        .add-activity-slider.open {
+            display: block;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .slider-header h2 {
+            font-size: 18px;
+        }
+
+        .slider-header button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .slider-header button:hover {
+            background-color: #c0392b;
+        }
+
+        /* Form Styling Inside Slider */
+        .slider-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slider-content input {
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .slider-content input:focus {
+            border-color: #4caf50;
+            outline: none;
+        }
+
+        .slider-content button {
+            padding: 12px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .slider-content button:hover {
+            background-color: #45a049;
+        }
+
+        /* Styling for the activities list */
+        .activities-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activities-list li {
+            background: #f9f9f9;
+            margin: 6px 0;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .activities-list button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .activities-list button:hover {
+            background-color: #c0392b;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Timeपे</h1>
+
+        <!-- Front Row: Datepicker and Add Button -->
+        <div class="input-section">
+            <input type="date" id="date" onchange="loadActivities()">
+            <button onclick="openAddActivitySlider()">Add</button>
+            <!-- Dropdown for Export and Import -->
+            <div class="dropdown">
+                <button class="dropdown-btn">•••</button>
+                <div class="dropdown-content">
+                    <button onclick="exportData()">Export Data</button>
+                    <button onclick="importData()">Import Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Activity Slider -->
+        <div id="addActivitySlider" class="add-activity-slider">
+            <div class="slider-header">
+                <h2>Add Activity</h2>
+                <button onclick="closeAddActivitySlider()">Close</button>
+            </div>
+            <div class="slider-content">
+                <input type="text" id="activity" placeholder="Enter activity...">
+                <input type="number" id="hours" placeholder="Hours spent...">
+                <button onclick="addActivity()">Add Activity</button>
+            </div>
+        </div>
+
+        <!-- Activities List -->
+        <div class="activities-list">
+            <h2>Activities Log</h2>
+            <ul id="activityList"></ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];  
+            document.getElementById('date').value = today;
+            loadActivities();
+        });
+
+        // Export data to JSON
+        function exportData() {
+            const activities = JSON.parse(localStorage.getItem('activities')) || [];
+            const dataStr = JSON.stringify(activities);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+            const exportFileName = 'activities.json';
+            const link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', exportFileName);
+            link.click();
+        }
+
+        // Import data from JSON
+        function importData() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            fileInput.onchange = (event) => {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onload = () => {
+                    const data = JSON.parse(reader.result);
+                    localStorage.setItem('activities', JSON.stringify(data));
+                    loadActivities();
+                };
+                
+                reader.readAsText(file);
+            };
+
+            fileInput.click();
+        }
+
+        // Open slider form for adding activity
+        function openAddActivitySlider() {
+            document.getElementById('addActivitySlider').classList.add('open');
+        }
+
+        // Close slider form
+        function closeAddActivitySlider() {
+            document.getElementById('addActivitySlider').classList.remove('open');
+        }
+
+        // Add activity to local storage
+        function addActivity() {
+            const date = document.getElementById('date').value;
+            const activity = document.getElementById('activity').value;
+            const hours = document.getElementById('hours').value;
+
+            if (date && activity && hours) {
+                const activityItem = {
+                    date,
+                    activity,
+                    hours,
+                    id: new Date().getTime()
+                };
+
+                let activities = JSON.parse(localStorage.getItem('activities')) || [];
+                activities.push(activityItem);
+                localStorage.setItem('activities', JSON.stringify(activities));
+
+                document.getElementById('activity').value = '';
+                document.getElementById('hours').value = '';
+                closeAddActivitySlider();
+
+                loadActivities();
+            } else {
+                alert('Please fill all the fields!');
+            }
+        }
+
+        // Load activities from local storage
+        function loadActivities() {
+            const activities = JSON.parse(localStorage.getItem('activities')) || [];
+            const activityList = document.getElementById('activityList');
+            const selectedDate = document.getElementById('date').value;
+
+            activityList.innerHTML = '';
+
+            const filteredActivities = activities.filter(item => item.date === selectedDate);
+
+            filteredActivities.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `${item.activity} - ${item.hours} hours <button onclick="removeActivity(${item.id})">Remove</button>`;
+                activityList.appendChild(li);
+            });
+        }
+
+        // Remove activity from local storage
+        function removeActivity(id) {
+            let activities = JSON.parse(localStorage.getItem('activities')) || [];
+            activities = activities.filter(item => item.id !== id);
+            localStorage.setItem('activities', JSON.stringify(activities));
+            loadActivities();
+        }
+    </script>
+</body>
+</html>
